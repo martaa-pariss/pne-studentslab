@@ -1,6 +1,10 @@
+MIO
 When we run the program, it tells us “ZeroDivisionError,” which means that at some point in our programming we are
 dividing by zero. Therefore, we press the debug button, and this way the program will indicate where the error
 is and the values of the variables so that we can see which one is 0.
 
+
+CORRECCIÓN
 This will happen any time that a and c takes the same value because of the substraction
 That's why the other results are properly computed
+

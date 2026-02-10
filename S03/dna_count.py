@@ -1,5 +1,5 @@
 #counting bases of a DNA seq
-    #we are supposing that the input seqs are correct
+    #vamos a suponer que los imputs que se ponen van a ser siempre correctos
 
 seq = input("Enter a sequence: ")
 count = 0
@@ -23,4 +23,5 @@ print("Number of Cs: ", C)
 print("Number of Gs: ", G)
 print("Number of Ts: ", T)
 print("total number of bases:", count)
+
 

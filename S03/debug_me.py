@@ -19,3 +19,5 @@ print("Result 4: ", f(1, 9, 22.0, 3))
 
 #in order for it to work, we can move result 2 to the end or remove it
 #we can also change the values of a and c if they coincide
+
+#para practicar con el debugger

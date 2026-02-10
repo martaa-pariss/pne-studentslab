@@ -27,5 +27,9 @@ lista = ["AGTACACTGGT", "ACCAGTGTACT", "ATGGCCATTGTAATGGGCCGCTGAAAGGGTGCCCGATAG"
 c = count_bases(lista)
 print(c)
 
+#este programa cuenta el numer
+
+
+
 
 
