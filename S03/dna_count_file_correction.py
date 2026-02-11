@@ -14,7 +14,7 @@ with open("dna.txt", "r") as f:
 
 total_number = 0
 bases = {"A": 0, "C": 0, "G": 0, "T": 0}
-for seq in lines:
+for seq in lines: ###refet baix
     seq = seq.strip() #this function remove spaces and newline characters at the end of the string
     total_number += len(seq)
     for base in seq:
@@ -23,4 +23,10 @@ for seq in lines:
 
 print("Total number of bases", total_number)
 
-#for base, count in bases.items():
+#refet
+for seq in lines: ###refet baix
+    seq = seq.strip() #this function remove spaces and newline characters at the end of the string
+    total_number += len(seq)
+    result = count_bases(seq)
+    for key in result:
+        bases[key] += result[key]
