@@ -1,8 +1,8 @@
 from P00.Seq0 import * #con el asterisco estamos importando todas las funciones de Seq0
 
-#reading and cleaning the sequence
-name = "../S04/sequences/RNU6_269P.file"
-full_seq = seq_read_fasta(name)
-
-length = seq_len(full_seq)
-print(length)
+names = ["U5", "RNU6_269P", "FXN", "FRAT1", "ADA"]
+print("-----Exercice 3-----")
+for gene in names:
+    full_seq = seq_read_fasta(gene + "(2).file")
+    print(f"\n for the gene {gene}")
+    print("-> Length =", seq_len(full_seq))

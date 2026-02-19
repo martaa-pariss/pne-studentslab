@@ -20,7 +20,7 @@ def seq_count_base(seq, base):
     for b in seq:
         if base == b:
             s_count += 1
-    output = (base,":", s_count)
+    output = (base, s_count)
     return output
 
 def seq_count(seq):
@@ -83,20 +83,20 @@ def most_common_base(seq):
     return output
 
 
-sequ = "GGGGATTTCCAGTCCGAAATTCCTGAGCCCACAATAAAGAAGGGCTGATCTCAAACAGCCTGAGCCTGGTGTCCTAATGGAATGA"
-print("For the sequence RNU6_269P -> Length =", seq_len(sequ))
+#sequ = "GGGGATTTCCAGTCCGAAATTCCTGAGCCCACAATAAAGAAGGGCTGATCTCAAACAGCCTGAGCCTGGTGTCCTAATGGAATGA"
+#print("For the sequence RNU6_269P -> Length =", seq_len(sequ))
 
-print("------Exercice 4------")
-print("Gene RNU6_269P:", "\n", seq_count_base(sequ, "A"), "\n", seq_count_base(sequ, "C"), "\n", seq_count_base(sequ, "G"), "\n", seq_count_base(sequ, "T") )
+#print("------Exercice 4------")
+#print("Gene RNU6_269P:", "\n", seq_count_base(sequ, "A"), "\n", seq_count_base(sequ, "C"), "\n", seq_count_base(sequ, "G"), "\n", seq_count_base(sequ, "T") )
 
-print("------Exercice 5------")
-print(seq_count(sequ))
+#print("------Exercice 5------")
+#print(seq_count(sequ))
 
-print("------Exercice 6------")
-print("Original sequence:", sequ,"\n" , "Reverse sequence:", seq_reverse(sequ))
+#print("------Exercice 6------")
+#print("Original sequence:", sequ,"\n" , "Reverse sequence:", seq_reverse(sequ))
 
-print("------Exercice 7------")
-print("Original sequence:", sequ,"\n" , "Complementary sequence:", seq_complement(sequ))
+##print("------Exercice 7------")
+#print("Original sequence:", sequ,"\n" , "Complementary sequence:", seq_complement(sequ))
 
-print("------Exercice 8------")
-print("RNU6_269P's most common base is:", most_common_base(sequ))
+#print("------Exercice 8------")
+#print("RNU6_269P's most common base is:", most_common_base(sequ))
