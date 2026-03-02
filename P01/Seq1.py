@@ -1,14 +1,9 @@
-#en los ejercicios lo que he estado haciendo para imprimir la longitud y la secuencia en si es ponerlo en el mismo programa abajo,
-    #para que este mejor hecho tengo que poner todos los prints en las definiciones de las clases
-    #asi si hay algo que no es una secuancia no se imprime nada; y si algo si que es una secuencia se pone todo solo
-
 class Seq:
     """A class for representing sequences"""
 
     def __init__(self, strbases=None):
         valid_bases = ['A', 'C', 'G', 'T']
 
-        # 🔹 Crear siempre los atributos
         self.strbases = None
         self.invalid = False
 
@@ -36,6 +31,9 @@ class Seq:
             return 0
         return len(self.strbases)
 
+    def len(self):
+        return len(self.strbases)
+
     def count_base(self, base):
         if self.strbases is None or self.invalid:
             return 0
@@ -51,12 +49,21 @@ class Seq:
 
     def reverse(self):
         if self.strbases is None or self.invalid:
-            return str(self)  # devuelve "NULL" o "ERROR"
+            return str(self)
         return self.strbases[::-1]
 
     def complement(self):
         if self.strbases is None or self.invalid:
-            return str(self)  # devuelve "NULL" o "ERROR"
+            return str(self)
         comp_dict = {'A': 'T', 'T': 'A', 'C': 'G', 'G': 'C'}
         return ''.join([comp_dict[base] for base in self.strbases])
 
+    def read_fasta(self, filename):
+        sequence = ""
+        with open(filename, "r") as f:
+            for line in f:
+                if line.startswith(">"):
+                    continue
+                sequence += line.strip()
+
+        self.strbases = sequence

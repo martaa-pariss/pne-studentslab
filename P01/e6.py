@@ -1,4 +1,3 @@
-# en el ejercicio 9 que tenemos que hacer lo del readfasta no devolvemos nada, lo "guardamos" en lo d strbases (tenemos que limpiarlo, es decir, ponerlo todo en un string y quitarle la primera linea)
 from Seq1 import Seq
 
 print("-----| Practice 1, Exercise 6 |------")
