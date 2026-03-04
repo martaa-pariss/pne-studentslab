@@ -2,7 +2,7 @@
 import socket
 
 HOST = "172.20.10.4"
-PORT = 5000
+PORT = 8080
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -10,7 +10,6 @@ server.bind((HOST, PORT))
 server.listen()
 
 print("Servidor esperando conexion...")
-
 
 conn, addr = server.accept()
 print("Conectando con: ", addr)
