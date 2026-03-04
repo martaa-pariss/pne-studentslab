@@ -1,26 +1,47 @@
 #172.20.10.4
 import socket
 
-HOST = "172.20.10.4"
+# Configure the Server's IP and PORT
 PORT = 8080
+IP = "172.20.10.4" # it depends on the machine the server is running
+MAX_OPEN_REQUESTS = 5
 
-server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+# Counting the number of connections
+number_con = 0
 
-server.bind((HOST, PORT))
-server.listen()
+# create an INET, STREAMing socket
+serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+try:
+    serversocket.bind((IP, PORT))
+    # become a server socket
+    # MAX_OPEN_REQUESTS connect requests before refusing outside connections
+    serversocket.listen(MAX_OPEN_REQUESTS)
 
-print("Servidor esperando conexion...")
+    while True:
+        # accept connections from outside
+        print("Waiting for connections at {}, {} ".format(IP, PORT))
+        (clientsocket, address) = serversocket.accept()
 
-conn, addr = server.accept()
-print("Conectando con: ", addr)
+        # Another connection!e
+        number_con += 1
 
+        # Print the connection number
+        print("CONNECTION: {}. From the IP: {}".format(number_con, address))
 
-while True:
-    data = conn.recv(1024)
-    if not data:
-        break
-    print("Mensaje recibido: ", data.decode())
-    conn.sendall(data)
+        # Read the message from the client, if any
+        msg = clientsocket.recv(2048).decode("utf-8")
+        print("Message from client: {}".format(msg))
 
-conn.close()
-server.close()
+        # Send the message
+        message = "Hello from the teacher's server\n"
+        send_bytes = str.encode(message)
+        # We must write bytes, not a string
+        clientsocket.send(send_bytes)
+        clientsocket.close()
+
+except socket.error:
+    print("Problems using ip {} port {}. Is the IP correct? Do you have port permission?".format(IP, PORT))
+
+except KeyboardInterrupt:
+    print("Server stopped by the user")
+    serversocket.close()
