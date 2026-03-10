@@ -29,7 +29,7 @@ while True:
     # -- Print the received message
     print(f"Message received: {msg}")
     # -- Send a response message to the client
-    response = f"{msg}\n"
+    response = f"ECHO:{msg}\n"
     # -- The message has to be encoded into bytes
     cs.send(response.encode())
     # -- Close the data socket
