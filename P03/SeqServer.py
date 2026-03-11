@@ -22,36 +22,39 @@ while True:
     l = msg.strip().split(" ")  # esto lo hemos implementado para la segunda tarea, para separar los get de los numeros ¡OJO CON EL PING; SOLO TIENE UNA PALABRA!
     cmd = l[0]
     param = l[1]
-    if msg.strip() == "PING":
-        print(" PING command... \n OK!")
-        response = f"OK! \n "
-        cs.send(response.encode())
+    if len(l) < 1:
+        if msg.strip() == "PING":
+            print(" PING command... \n OK!")
+            response = f"OK! \n "
+            cs.send(response.encode())
+    elif len(l) == 2:
+        if cmd == "GET":
+            if param == "0":
+                s = seq_list[0] #s stands for chosen sequence
+                print(f" GET \n {s}")
+                response = f"´{s} \n "
+                cs.send(response.encode())
+            elif param == "1":
+                s = seq_list[1]
+                print(f" GET \n {s}")
+                response = f"´{s} \n "
+                cs.send(response.encode())
+            elif param == "2":
+                s = seq_list[2]
+                print(f" GET \n {s}")
+                cs.send(response.encode())
+            elif pa
+                response = f"´{s} \n "ram == "3":
+                s = seq_list[3]
+                print(f" GET \n {s}")
+                response = f"´{s} \n "
+                cs.send(response.encode())
+            elif param == "4":
+                s = seq_list[4]
+                print(f" GET \n {s}")
+                response = f"´{s} \n "
+                cs.send(response.encode())
 
-    elif msg.strip() == f"GET {n}":
-        if n == 0:
-            cs = seq_list[0] #cs stands for chosen sequence
-            print(f" GET \n {cs}")
-            response = f"´{cs} \n "
-            cs.send(response.encode())
-        elif n == 1:
-            s = seq_list[1]
-            print(f" GET \n {cs}")
-            response = f"´{cs} \n "
-            cs.send(response.encode())
-        elif n == 2:
-            s = seq_list[2]
-            print(f" GET \n {cs}")
-            response = f"´{cs} \n "
-            cs.send(response.encode())
-        elif n == 3:
-            s = seq_list[3]
-            print(f" GET \n {cs}")
-            response = f"´{cs} \n "
-            cs.send(response.encode())
-        elif n == 4:
-            s = seq_list[4]
-            print(f" GET \n {cs}")
-            response = f"´{cs} \n "
-            cs.send(response.encode())
+
 
     cs.close()
