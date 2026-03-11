@@ -13,6 +13,31 @@ print("The server is configured!")
 
 #Aquí empieza la programacion que tenemos que hacer
 seq_list = ["ACGT", "CATG", "GATC", "TAGC", "AAAA"]
+def seq_percent(s):
+    total = len(sequence)
+
+    bases = ['A', 'C', 'G', 'T']
+    result = []
+    for base in bases:
+        count = sequence.count(base)
+        percentage = (count / total) * 100
+        result.append(f"{base}: {count} ({percentage:.1f}%)")
+    return result
+
+
+def complementary(s):
+    complement = ""
+    for base in s:
+        if base == "A":
+            complement += "T"
+        elif base == "T":
+            complement += "A"
+        elif base == "C":
+            complement += "G"
+        elif base == "G":
+            complement += "C"
+    return complement
+
 while True:
     print("Waiting for Clients to connect")
     (cs, client_ip_port) = ls.accept()
@@ -43,8 +68,8 @@ while True:
                 s = seq_list[2]
                 print(f" GET \n {s}")
                 cs.send(response.encode())
-            elif pa
-                response = f"´{s} \n "ram == "3":
+            elif param == "3":
+                response = f"´{s} \n "
                 s = seq_list[3]
                 print(f" GET \n {s}")
                 response = f"´{s} \n "
@@ -54,7 +79,27 @@ while True:
                 print(f" GET \n {s}")
                 response = f"´{s} \n "
                 cs.send(response.encode())
+        if cmd == "INFO":
+            sequence = l[1]
+            percentages = seq_percent(sequence)
+            response = f"Sequence: {sequence} \n Length: {len(sequence)} \n {percentages}"
+            print(response)
+            cs.send(response.encode())
 
+        if cmd == "COMP":
+            sequence = l[1]
+            comp = complementary(sequence)
+            print(f"COMP \n New sequence created! \n {comp}")
+            response = f"{comp}\n"
+            cs.send(response.encode())
 
+        if cmd == "REV":
+            sequence = l[1]
+            reverse = sequence[::-1]
+            print(f"REV \n New sequence created! \n {reverse}")
+            response = f"{reverse}\n"
+            cs.send(response.encode())
+
+        if cmd ==
 
     cs.close()
