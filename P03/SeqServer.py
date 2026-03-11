@@ -1,5 +1,5 @@
 import socket
-from Seq1 import Seq
+from imports import *
 
 # estamos configurando el servidor, esto se copia y se pega, solo cambiamos el ip para q funcione en el ordenador
 ls = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -24,7 +24,6 @@ def seq_percent(s):
         percentage = (count / total) * 100
         result.append(f"{base}: {count} ({percentage:.1f}%)")
     return result
-
 
 def complementary(s):
     complement = ""
