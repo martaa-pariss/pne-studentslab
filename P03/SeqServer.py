@@ -1,4 +1,5 @@
 import socket
+from Seq1 import Seq
 
 # estamos configurando el servidor, esto se copia y se pega, solo cambiamos el ip para q funcione en el ordenador
 ls = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -37,6 +38,15 @@ def complementary(s):
         elif base == "G":
             complement += "C"
     return complement
+
+def read_fasta(filename):
+    sequence = ""
+    with open(filename, "r") as f:
+        for line in f:
+            if line.startswith(">"):
+                continue
+            sequence += line.strip()
+    return sequence
 
 while True:
     print("Waiting for Clients to connect")
@@ -100,6 +110,24 @@ while True:
             response = f"{reverse}\n"
             cs.send(response.encode())
 
-        if cmd ==
+        if cmd == "GENE":
+            if param == "ADA":
+                filename = "sequences/ADA.file"
+                seq = read_fasta(filename)
+            elif param == "FRAT1":
+                filename = "sequences/FRAT1.file"
+                seq = read_fasta(filename)
+            elif param == "FXN":
+                filename = "sequences/FXN.file"
+                seq = read_fasta(filename)
+            elif param == "RNU6_269P":
+                filename = "sequences/RNU6_269P.file"
+                seq = read_fasta(filename)
+            elif param == "U5":
+                filename = "sequences/U5.file"
+                seq = read_fasta(filename)
+            print(f"GENE \n New sequence created! \n {seq}")
+            response = f"{seq}\n"
+            cs.send(response.encode())
 
     cs.close()
