@@ -1,10 +1,11 @@
 from imports import Client
-
 IP = "212.128.255.91"
 PORT = 8080
 print("-----| Practice 3, Exercise 7 |------")
+
 # Create the client
 c = Client(IP, PORT)
+
 # Print info
 print(c)
 print("* Testing PING...")
