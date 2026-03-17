@@ -1,0 +1,132 @@
+import socket
+from imports import *
+
+# estamos configurando el servidor, esto se copia y se pega, solo cambiamos el ip para q funcione en el ordenador
+ls = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+ls.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+PORT = 8080
+IP = "212.128.255.91"
+ls = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+ls.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+ls.bind((IP, PORT))
+ls.listen()
+print("The server is configured!")
+
+#Aquí empieza la programacion que tenemos que hacer
+seq_list = ["ACGT", "CATG", "GATC", "TAGC", "AAAA"]
+def seq_percent(s):
+    total = len(sequence)
+
+    bases = ['A', 'C', 'G', 'T']
+    result = []
+    for base in bases:
+        count = sequence.count(base)
+        percentage = (count / total) * 100
+        result.append(f"{base}: {count} ({percentage:.1f}%)")
+    return result
+
+def complementary(s):
+    complement = ""
+    for base in s:
+        if base == "A":
+            complement += "T"
+        elif base == "T":
+            complement += "A"
+        elif base == "C":
+            complement += "G"
+        elif base == "G":
+            complement += "C"
+    return complement
+
+def read_fasta(filename):
+    sequence = ""
+    with open(filename, "r") as f:
+        for line in f:
+            if line.startswith(">"):
+                continue
+            sequence += line.strip()
+    return sequence
+
+while True:
+    print("Waiting for Clients to connect")
+    (cs, client_ip_port) = ls.accept()
+    print("A client has connected to the server!")
+    msg_raw = cs.recv(2048)
+    msg = msg_raw.decode()
+    l = msg.strip().split(" ")  # esto lo hemos implementado para la segunda tarea, para separar los get de los numeros ¡OJO CON EL PING; SOLO TIENE UNA PALABRA!
+    cmd = l[0]
+    param = l[1]
+    if len(l) < 1:
+        if msg.strip() == "PING":
+            print(" PING command... \n OK!")
+            response = f"OK! \n "
+            cs.send(response.encode())
+    elif len(l) == 2:
+        if cmd == "GET":
+            if param == "0":
+                s = seq_list[0] #s stands for chosen sequence
+                print(f" GET \n {s}")
+                response = f"´{s} \n "
+                cs.send(response.encode())
+            elif param == "1":
+                s = seq_list[1]
+                print(f" GET \n {s}")
+                response = f"´{s} \n "
+                cs.send(response.encode())
+            elif param == "2":
+                s = seq_list[2]
+                print(f" GET \n {s}")
+                cs.send(response.encode())
+            elif param == "3":
+                response = f"´{s} \n "
+                s = seq_list[3]
+                print(f" GET \n {s}")
+                response = f"´{s} \n "
+                cs.send(response.encode())
+            elif param == "4":
+                s = seq_list[4]
+                print(f" GET \n {s}")
+                response = f"´{s} \n "
+                cs.send(response.encode())
+        if cmd == "INFO":
+            sequence = l[1]
+            percentages = seq_percent(sequence)
+            response = f"Sequence: {sequence} \n Length: {len(sequence)} \n {percentages}"
+            print(response)
+            cs.send(response.encode())
+
+        if cmd == "COMP":
+            sequence = l[1]
+            comp = complementary(sequence)
+            print(f"COMP \n New sequence created! \n {comp}")
+            response = f"{comp}\n"
+            cs.send(response.encode())
+
+        if cmd == "REV":
+            sequence = l[1]
+            reverse = sequence[::-1]
+            print(f"REV \n New sequence created! \n {reverse}")
+            response = f"{reverse}\n"
+            cs.send(response.encode())
+
+        if cmd == "GENE":
+            if param == "ADA":
+                filename = "sequences/ADA.file"
+                seq = read_fasta(filename)
+            elif param == "FRAT1":
+                filename = "sequences/FRAT1.file"
+                seq = read_fasta(filename)
+            elif param == "FXN":
+                filename = "sequences/FXN.file"
+                seq = read_fasta(filename)
+            elif param == "RNU6_269P":
+                filename = "sequences/RNU6_269P.file"
+                seq = read_fasta(filename)
+            elif param == "U5":
+                filename = "sequences/U5.file"
+                seq = read_fasta(filename)
+            print(f"GENE \n New sequence created! \n {seq}")
+            response = f"{seq}\n"
+            cs.send(response.encode())
+
+    cs.close()
