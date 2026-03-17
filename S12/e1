@@ -1,0 +1,20 @@
+Description: A text file to answer the following questions
+Run the webserver-2. Open the browser and connect to the URL: http://127.0.0.1:8080/hello
+
+Which is the request line? GET /hello HTTP/1.1
+Which is the resource that the client is asking for? hello
+
+Repeat the exercise for this URL: http://127.0.0.1:8080/file.html
+
+Which is the request line? GET /file.html HTTP/1.1
+Which is the resource that the client is asking for? file.html
+
+
+Repeat the exercise for this URL: http://127.0.0.1:8080/hi/there?name=virus&type=corona
+
+Which is the request line? GET /hi/there?name=virus&type=corona HTTP/1.1
+Which is the resource that the client is asking for? hi/there?name=virus&type=corona
+
+What should be the URL that we have to write in the browser for accessing the /dna/u5 resource?
+
+http://212.128.255.99:8080/home/alumnos/marta/PycharmProjects/pne-studentslab/P03/sequences/U5.file
