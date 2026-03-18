@@ -46,7 +46,6 @@ def process_client(s):
     response_msg = status_line + header + "\n" + body
     cs.send(response_msg.encode())
 
-
 # -------------- MAIN PROGRAM
 # ------ Configure the server
 # -- Listening socket

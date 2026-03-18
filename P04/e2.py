@@ -2,7 +2,7 @@ import socket
 import termcolor
 
 # -- Server network parameters
-IP = "212.128.255.99"
+IP = "212.128.255.94"
 PORT = 8080
 
 def process_client(s):
@@ -29,19 +29,18 @@ def process_client(s):
     # Body (content to send)
 
     # This new contents are written in HTML language
-    body = """
-    <!DOCTYPE html>
-    <html lang="en" dir="ltr">
-      <head>
-        <meta charset="utf-8">
-        <title>Green server</title>    
-      </head>
-      <body style="background-color: lightgreen;">
-        <h1>GREEN SERVER</h1>
-        <p>I am the Green Server! :-)</p>
-      </body>
-    </html>
-    """
+    body = """<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>ADENINE</title>
+  <p>Letter: A</p>
+  <p>Chemical formula: C5H5N5</p>
+</head>
+<body>
+
+</body>
+</html>"""
     # -- Status line: We respond that everything is ok (200 code)
     status_line = "HTTP/1.1 200 OK\n"
 
@@ -90,7 +89,3 @@ while True:
         cs.close()
 
 
-
-
-#lo primero que hemos hecho es poner esto en el buscador de firefox: http://212.128.255.99:8080/
-# nos ha mandado a una página de un color verde bastante feo dnd hay un titulo y una frase

@@ -1,12 +1,8 @@
 import socket
 import termcolor
-
-
 # -- Server network parameters
 IP = "212.128.255.99"
 PORT = 8080
-
-
 def process_client(s):
     # -- Receive the request message
     req_raw = s.recv(2000)
@@ -14,8 +10,6 @@ def process_client(s):
 
     print("Message FROM CLIENT: ")
     termcolor.cprint(req, "green")
-
-    
 
 
 # -------------- MAIN PROGRAM

@@ -3,7 +3,7 @@ import termcolor
 
 
 # -- Server network parameters
-IP = "212.128.255.99"
+IP = "212.128.255.94"
 PORT = 8080
 
 
@@ -79,6 +79,8 @@ while True:
 
         # -- Close the socket
         cs.close()
+
+
 
 #para probarlo le damos a play mientras ponemos en el buscador: http://212.128.255.99:8080/
 #no sale el hello verde, lo que sale verde es lo que se imprime en pycharm, lo de Request line: GET / HTTP/1.1
