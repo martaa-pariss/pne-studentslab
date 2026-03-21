@@ -32,18 +32,19 @@ def process_client(s):
 
     # This new contents are written in HTML language
     body = """
-     <!DOCTYPE html>
+    <!DOCTYPE html>
     <html lang="en" dir="ltr">
       <head>
         <meta charset="utf-8">
-        <title>Cytosine information</title>
+        <title>Bases information Index</title>
       </head>
-      <body style="background-color: yellow;">
-        <h1>CYTOSINE</h1>
-        <p>Chemical formula: C4H5N30</p>
-        <p>Letter: C</p>
-        <a href="https://en.wikipedia.org/wiki/Cytosine">Further Information</a>
-        <a href="http://127.0.0.1:8080">Main Page</a>
+      <body style="background-color: white;">
+        <h1>Bases Information</h1>
+        <p>Click on the following links to have more information</p>
+        <a href="http://127.0.0.1:8080/info/A">[A]</a>
+        <a href="http://127.0.0.1:8080/info/C">[C]</a>
+        <a href="http://127.0.0.1:8080/info/G">[G]</a>
+        <a href="http://127.0.0.1:8080/info/T">[T]</a>
       </body>
     </html>
     """

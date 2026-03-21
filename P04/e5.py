@@ -32,16 +32,15 @@ def process_client(s):
 
     # This new contents are written in HTML language
     body = """
-     <!DOCTYPE html>
+    <!DOCTYPE html>
     <html lang="en" dir="ltr">
       <head>
         <meta charset="utf-8">
         <title>Green server</title>
       </head>
-      <body style="background-color: pink;">
-        <h1>THYMINE</h1>
-        <p>Chemical formula: C5H6N202</p>
-        <p>Letter: T</p>
+      <body style="background-color: red;">
+        <h1>ERROR</h1>
+        <p>Resource not available</p>
       </body>
     </html>
     """
