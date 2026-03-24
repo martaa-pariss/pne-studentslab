@@ -6,11 +6,11 @@ def seq_read_fasta(filename):
     FILENAME = filename
     file_contents = Path(FILENAME).read_text()
     header = file_contents.split("\n")[1:] #aqui se guarda toda la secuancia menos el header
-    final = "".join(header) #aqui se une toda la secuencia en un solo  string
+    final = "".join(header) #aqui se une toda la secuencia en un solo string
     return final
 
 
-def seq_len(seq):
+def seq_len(seq): #para usar este bien primero tenemos que usar seq_read_fasta, lo definido arriba
     number = len(seq)
     return number
 
