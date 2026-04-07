@@ -4,6 +4,8 @@ import termcolor
 PORT = 8080
 socketserver.TCPServer.allow_reuse_address = True
 class TestHandler(http.server.BaseHTTPRequestHandler):
+
+    #no está bien hacer bien
     def do_GET(self):
         termcolor.cprint(self.requestline, 'green')
         self.send_response(200)
