@@ -15,7 +15,7 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
         parsed_path = urlparse(self.path)
         path = parsed_path.path
 
-        # 🔹 MAIN PAGE (/)
+        # MAIN PAGE (/)
         if path == "/":
             contents = """
             <html>
@@ -35,7 +35,7 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(contents.encode())
 
-        # 🔹 ECHO (/echo)
+        # ECHO (/echo)
         elif path == "/echo":
             params = parse_qs(parsed_path.query)
             message = params.get("msg", [""])[0]
