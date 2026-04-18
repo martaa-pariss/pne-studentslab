@@ -13,12 +13,11 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
 
         # Si se pide "/" → index.html
         if self.path == "/":
-            requested_file = "index.html"
+            requested_file = "html/index.html"
         else:
             # Quitar la "/" inicial
             requested_file = self.path.lstrip("/")
-
-        file_path = Path(requested_file)
+        file_path = Path("html") / requested_file
 
         try:
             # Intentar abrir el archivo solicitado
@@ -27,7 +26,7 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
 
         except FileNotFoundError:
             # Si no existe → cargar error.html
-            error_path = Path("error.html")
+            error_path = Path("html") / "error.html"
             contents = error_path.read_text(encoding="utf-8")
             self.send_response(404)
 
