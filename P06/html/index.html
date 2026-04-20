@@ -1,10 +1,33 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+    <title>SEQ SERVER</title>
 </head>
 <body>
+
+<h1>SEQ SERVER</h1>
+
+<h2>Ping</h2>
+<a href="/ping">Check server</a>
+
+<h2>Get sequence</h2>
+<form action="/get" method="get">
+    Number (0-4): <input type="text" name="n">
+    <input type="submit" value="Get">
+</form>
+
+<h2>Gene</h2>
+<form action="/gene" method="get">
+    Name: <input type="text" name="name">
+    <input type="submit" value="Get Gene">
+</form>
+
+<h2>Operation</h2>
+<form action="/operation" method="get">
+    Sequence: <input type="text" name="seq"><br>
+    Operation (info, comp, rev): <input type="text" name="op"><br>
+    <input type="submit" value="Execute">
+</form>
 
 </body>
 </html>
