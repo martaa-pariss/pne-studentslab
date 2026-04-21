@@ -21,6 +21,7 @@ for person in people:
     termcolor.cprint("Phone numbers: ", 'green', end='')
     print(len(phoneNumbers))
 
+
     for i, dictnum in enumerate(phoneNumbers):
         termcolor.cprint("  Phone " + str(i + 1) + ": ", 'blue')
 
