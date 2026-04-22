@@ -47,6 +47,42 @@ class Seq:
             bases_dict[base] += 1
         return bases_dict
 
+    def percentage(self):
+        bases_dict = {'A': 0, 'T': 0, 'C': 0, 'G': 0}
+
+        if self.strbases is None or self.invalid:
+            return bases_dict
+
+        total = len(self.strbases)
+
+        counts = self.count()
+
+        for base in bases_dict:
+            bases_dict[base] = (counts[base] / total) * 100
+
+        return bases_dict
+
+    def max_base(self):
+        percentages = self.percentage()
+
+        if self.strbases is None or self.invalid:
+            return None
+
+        max_base = None
+        max_value = 0
+
+        for base in percentages:
+            value = percentages[base]
+
+            if max_base is None:
+                max_base = base
+                max_value = value
+            elif value > max_value:
+                max_base = base
+                max_value = value
+
+        return max_base, max_value
+
     def reverse(self):
         if self.strbases is None or self.invalid:
             return str(self)
@@ -68,4 +104,3 @@ class Seq:
 
         self.strbases = sequence
 
-    #ting q afegir un que calcule el percentatge de bases!!! idea: agarrar el q conte per cada base, dividir per len y multiplicar per 100
