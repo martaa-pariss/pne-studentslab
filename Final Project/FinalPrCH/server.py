@@ -2,7 +2,6 @@ import http.server
 import socketserver
 import http.client
 import json
-
 from twisted.internet.inotify import humanReadableMask
 
 PORT = 8080
