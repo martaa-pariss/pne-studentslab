@@ -12,7 +12,7 @@ print(f"URL: {URL}")
 conn = http.client.HTTPConnection(SERVER)
 try:
     headers = {"Content-Type": "application/json"}
-    conn.request("GET", ENDPOINT, headers=headers)
+    conn.request("GET", ENDPOINT + PARAMS, headers=headers)
     response = conn.getresponse()
     print(f"Response received!: {response.status} {response.reason}")
     print()

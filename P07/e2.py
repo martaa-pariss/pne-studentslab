@@ -11,7 +11,5 @@ genes = {
     "ANK2": "ENSG00000145362"
 }
 
-#no imprimeix be, imprimeix la primera lletra joder
-for gene in genes:
-
-    print(f"{gene[0]} --> {gene[1]}")
+for key, value in genes.items():
+    print(f"{key} -> {value}")
