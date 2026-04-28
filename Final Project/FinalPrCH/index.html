@@ -1,0 +1,21 @@
+10humanhumandfsmousee
+<html>
+<head>
+    <title>Welcome!!</title>
+    <style>body { background-color: #fdfde0; font-family: serif; padding: 20px; }</style>
+</head>
+<body>
+    <h1>Browsing Human and Vertebrates genome</h1>
+    <h2>BASIC Level Services</h2>
+    <p>1) List of species in the genome database</p>
+    <form action="/listSpecies">Limit: <input type="number" name="limit"><input type="submit" value="Send"></form>
+    <p>2) Information about the karyotype:</p>
+    <form action="/karyotype">Select the species: <input type="text" name="species"><input type="submit" value="Send"></form>
+    <p>3) Chromosome Length</p>
+    <form action="/chromosomeLength">
+        Select the species: <input type="text" name="species"><br><br>
+        Select a chromosome: <input type="text" name="chromo"><br><br>
+        <input type="submit" value="Send">
+    </form>
+</body>
+</html>
