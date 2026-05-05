@@ -76,11 +76,11 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
 
             if response.status == 200:
                 data = json.loads(response.read().decode())
-                longitud = "No encontrado"
+                id = "No encontrado"
                 # Buscamos en la lista de regiones la que coincida con el nombre del cromosoma
-                for region in data['top_level_region']:
+                for region in data['Transcript']:
                     if region['name'] == cromosoma:
-                        longitud = str(region['length'])
+                        id = str(region['length'])
                         break
 
                 plantilla = Path('html/chromosomeLength.html').read_text()
@@ -89,6 +89,8 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
             else:
                 contents = Path('html/error.html').read_text().replace("{{message}}", "Error en los datos")
                 error_code = 404
+
+
 
         #error max
         else:
