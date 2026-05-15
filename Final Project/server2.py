@@ -82,7 +82,7 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                         break
 
                 page = Path('html/chromosomeLength.html').read_text()
-                contents = page.replace("{{species}}", especie).replace("{{chromo}}", cromosoma).replace("{{length}}", longitud)
+                contents = page.replace("{{species}}", specie).replace("{{chromo}}", chromosome).replace("{{length}}", long)
             else:
                 contents = Path('html/error.html').read_text().replace("{{message}}", "Error en los datos")
                 error_code = 404
