@@ -50,9 +50,23 @@
         <input type="submit" value="Send">
     </form>
 
-    <p>5) Gene Info</p>
+    <p>6) Gene Info</p>
     <form action="/geneInfo">
         Gene name: <input type="text" name="gene">
+        <input type="submit" value="Send">
+    </form>
+
+    <p>7) Gene Calculations</p>
+    <form action="/geneCalc">
+        Gene name: <input type="text" name="gene">
+        <input type="submit" value="Send">
+    </form>
+
+    <p>8) Gene List (Find human genes in a specific region)</p>
+    <form action="/geneList" >
+        Chromosome: <input type="text" name="chromo" size="5" placeholder="e.g. 9">
+        Start position: <input type="text" name="start" placeholder="e.g. 22125500">
+        End position: <input type="text" name="end" placeholder="e.g. 22136000">
         <input type="submit" value="Send">
     </form>
 </body>

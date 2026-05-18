@@ -6,6 +6,18 @@ from pathlib import Path
 
 PORT = 8080
 socketserver.TCPServer.allow_reuse_address = True # Evita que si reinicias el programa diga "Port already in use"
+# defino aquí las funciones que necesite...
+def seq_percent(seq):
+    total = len(seq)
+    bases = ['A', 'C', 'G', 'T']
+    result = []
+    for base in bases:
+        count = seq.count(base)
+        percentage = (count / total) * 100
+        result.append(f"{base}: {count} ({percentage:.1f}%)")
+    return result
+
+#
 
 class TestHandler(http.server.BaseHTTPRequestHandler):
     def do_GET(self): #para GET el request, basicament, parteix el missatge pa llegir lo que es rsource i request i tal
@@ -17,11 +29,11 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
         content_type = 'text/html'
         error_code = 200
 
-        #CASO 1: Página principal
+        # 1
         if resource == "/" or resource == "":
             contents = Path('html/index.html').read_text()
 
-        #CASO 2: Lista de especies con limite o no
+        #2: Lista
         elif resource == "/listSpecies":
             conn = http.client.HTTPSConnection("rest.ensembl.org")
             conn.request("GET", "/info/species", headers={"Content-Type": "application/json"})
@@ -45,7 +57,7 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                 contents = "Error al conectar con Ensembl"
                 error_code = 500
 
-        #CASO 3: Cariotipo
+        #3: karyo
         elif resource == "/karyotype":
             specie = params.split("=")[1] # Sacamos el nombre de la especie del parámetro (ej: species=human)
             conn = http.client.HTTPSConnection("rest.ensembl.org")
@@ -62,7 +74,7 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                 contents = Path('html/error.html').read_text().replace("{{message}}", "Specie not found")
                 error_code = 404
 
-        #CASO 4: Longitud del cromosoma
+        #4: Long
         elif resource == "/chromosomeLength":
             parts = params.split("&")
             specie = parts[0].split("=")[1]
@@ -88,7 +100,7 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                 error_code = 404
 
             #MEDIUM LEVEL#
-        # CASO 5: /geneLookup (Obtener el ID ENSG de un nombre de gen)
+        #5: /geneLookup (ID)
         elif resource == "/geneLookup":
             gene_name = params.split("=")[1]
             # API: /lookup/symbol/homo_sapiens/NOMBRE_GEN
@@ -105,10 +117,9 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                 contents = Path('html/error.html').read_text().replace("{{message}}", "Gene not found")
                 error_code = 404
 
-        # CASO 6: /geneSeq (Obtener la secuencia de ADN dado el nombre)
+        # CASO 6: /geneSeq dado nombre
         elif resource == "/geneSeq":
-            gene_name = params.split("=")[1]
-            # PASO 1: Buscar el ID (igual que en el caso anterior)
+            gene_name = params.split("=")[1] # para buscar n
             conn = http.client.HTTPSConnection("rest.ensembl.org")
             conn.request("GET", "/lookup/symbol/homo_sapiens/" + gene_name, headers={"Content-Type": "application/json"})
             response = conn.getresponse()
@@ -127,7 +138,7 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                 contents = "Error obteniendo secuencia"
                 error_code = 404
 
-        # CASO 7: /geneInfo (Detalles del gen)
+        #7: /geneInfo
         elif resource == "/geneInfo":
             gene_name = params.split("=")[1]
             conn = http.client.HTTPSConnection("rest.ensembl.org")
@@ -149,7 +160,59 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                 contents = "Gene info not found"
                 error_code = 404
 
-        #error max
+        #8: longitud porcentaje
+        elif resource == "/geneCalc":
+            gene_name = params.split("=")[1]
+            conn = http.client.HTTPSConnection("rest.ensembl.org")
+            conn.request("GET", "/lookup/symbol/homo_sapiens/" + gene_name, headers={"Content-Type": "application/json"})
+            response = conn.getresponse()
+            if response.status == 200:
+                gene_id = json.loads(response.read().decode())['id']
+                conn.request("GET", "/sequence/id/" + gene_id, headers={"Content-Type": "application/json"})
+                response2 = conn.getresponse()
+                seq_data = json.loads(response2.read().decode())
+                full_seq = seq_data['seq']
+                length = str(len(full_seq))
+                percents = str(seq_percent(full_seq))
+
+                page = Path('html/geneCalc.html').read_text()
+                contents = page.replace("{{length}}", length).replace("{{percents}}", percents)
+            else:
+                contents = "Error obteniendo secuencia"
+                error_code = 404
+        #9: /geneList (gnes en reg)
+        elif resource == "/geneList":
+            parts = params.split("&")
+            chromo = ""
+            start = ""
+            end = ""
+            for part in parts:
+                if part.startswith("chromo="):
+                    chromo = part.split("=")[1]
+                elif part.startswith("start="):
+                    start = part.split("=")[1]
+                elif part.startswith("end="):
+                    end = part.split("=")[1]
+            conn = http.client.HTTPSConnection("rest.ensembl.org")
+            ensembl_url = f"/overlap/region/homo_sapiens/{chromo}:{start}-{end}?feature=gene"
+            conn.request("GET", ensembl_url, headers={"Content-Type": "application/json"})
+            response = conn.getresponse()
+
+            if response.status == 200:
+                data = json.loads(response.read().decode())
+                list_html = ""
+                for gene in data:
+                    gene_name = gene.get('external_name', gene.get('id', 'Unknown'))
+                    list_html += f"<li>{gene_name}</li>"
+                if list_html == "": #po si no se encuentra nada
+                    list_html = "<li>genes not found in this region</li>"
+                page = Path('html/geneList.html').read_text()
+                contents = page.replace("{{chromo}}", chromo).replace("{{start}}", start).replace("{{end}}", end).replace("{{list}}", list_html)
+            else:
+                contents = Path('html/error.html').read_text().replace("{{message}}","region not found")
+                error_code = 404
+
+        #error final
         else:
             contents = Path('html/error.html').read_text().replace("{{message}}", "Página no encontrada")
             error_code = 404
