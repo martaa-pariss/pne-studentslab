@@ -29,11 +29,16 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
         content_type = 'text/html'
         error_code = 200
 
-        # 1
+        # for json mpty dictionary
+        datos_compartidos = {}
+        # Limpiamos los parámetros por si viene el json=1 mezclado con tus variables
+        params_limpios = params.replace("&json=1", "").replace("json=1&", "").replace("json=1", "")
+
+        #CASO 1: Página principal
         if resource == "/" or resource == "":
             contents = Path('html/index.html').read_text()
 
-        #2: List
+        #CASO 2: Lista de especies con limite o no
         elif resource == "/listSpecies":
             conn = http.client.HTTPSConnection("rest.ensembl.org")
             conn.request("GET", "/info/species", headers={"Content-Type": "application/json"})
@@ -42,13 +47,16 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
             if response.status == 200:
                 data = json.loads(response.read().decode())
                 specie = data['species']   # Leemos los datos y los convertimos de "texto" a "lista de Python"
-                if "limit=" in params:
-                    limite = int(params.split("=")[1])
+                if "limit=" in params_limpios:
+                    limite = int(params_limpios.split("=")[1])
                     specie = specie[:limite]
                 # Creamos el trozo de HTML con los nombres
                 list_html = ""
                 for e in specie:
                     list_html += "<li>" + e['display_name'] + "</li>"
+
+                # for json
+                datos_compartidos = {"species": [e['display_name'] for e in specie]}
 
                 # Cargamos la plantilla y cambiamos el "hueco" por nuestra lista
                 page = Path('html/listSpecies.html').read_text()
@@ -57,9 +65,9 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                 contents = "Error al conectar con Ensembl"
                 error_code = 500
 
-        #3: karyo
+        #CASO 3: Cariotipo
         elif resource == "/karyotype":
-            specie = params.split("=")[1] # Sacamos el nombre de la especie del parámetro (ej: species=human)
+            specie = params_limpios.split("=")[1] # Sacamos el nombre de la especie del parámetro (ej: species=human)
             conn = http.client.HTTPSConnection("rest.ensembl.org")
             conn.request("GET", "/info/assembly/" + specie, headers={"Content-Type": "application/json"})
             response = conn.getresponse()
@@ -68,15 +76,18 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                 data = json.loads(response.read().decode())
                 chromosome = ", ".join(data['karyotype'])  # El cariotipo es una lista de nombres de cromosomas
 
+                # for json
+                datos_compartidos = {"species": specie, "karyotype": data['karyotype']}
+
                 page = Path('html/karyotype.html').read_text()
                 contents = page.replace("{{species}}", specie).replace("{{chromos}}", chromosome)
             else:
                 contents = Path('html/error.html').read_text().replace("{{message}}", "Specie not found")
                 error_code = 404
 
-        #4: Long
+        #CASO 4: Longitud del cromosoma
         elif resource == "/chromosomeLength":
-            parts = params.split("&")
+            parts = params_limpios.split("&")
             specie = parts[0].split("=")[1]
             chromosome = parts[1].split("=")[1]
 
@@ -93,6 +104,9 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                         long = str(region['length'])
                         break
 
+                # for json
+                datos_compartidos = {"species": specie, "chromosome": chromosome, "length": long}
+
                 page = Path('html/chromosomeLength.html').read_text()
                 contents = page.replace("{{species}}", specie).replace("{{chromo}}", chromosome).replace("{{length}}", long)
             else:
@@ -100,9 +114,9 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                 error_code = 404
 
             #MEDIUM LEVEL#
-        #5: /geneLookup (ID)
+        # CASO 5: /geneLookup (Obtener el ID ENSG de un nombre de gen)
         elif resource == "/geneLookup":
-            gene_name = params.split("=")[1]
+            gene_name = params_limpios.split("=")[1]
             # API: /lookup/symbol/homo_sapiens/NOMBRE_GEN
             conn = http.client.HTTPSConnection("rest.ensembl.org")
             conn.request("GET", "/lookup/symbol/homo_sapiens/" + gene_name, headers={"Content-Type": "application/json"})
@@ -111,15 +125,20 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
             if response.status == 200:
                 data = json.loads(response.read().decode())
                 gene_id = data['id']  # Esto nos da el ENS
+
+                # for json
+                datos_compartidos = {"gene": gene_name, "id": gene_id}
+
                 page = Path('html/geneLookup.html').read_text()
                 contents = page.replace("{{gene}}", gene_name).replace("{{id}}", gene_id)
             else:
                 contents = Path('html/error.html').read_text().replace("{{message}}", "Gene not found")
                 error_code = 404
 
-        # CASO 6: /geneSeq dado nombre
+        # CASO 6: /geneSeq (Obtener la secuencia de ADN dado el nombre)
         elif resource == "/geneSeq":
-            gene_name = params.split("=")[1] # para buscar n
+            gene_name = params_limpios.split("=")[1]
+            # PASO 1: Buscar el ID (igual que en el caso anterior)
             conn = http.client.HTTPSConnection("rest.ensembl.org")
             conn.request("GET", "/lookup/symbol/homo_sapiens/" + gene_name, headers={"Content-Type": "application/json"})
             response = conn.getresponse()
@@ -132,15 +151,18 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                 response2 = conn.getresponse()
                 seq_data = json.loads(response2.read().decode())
 
+                # for json
+                datos_compartidos = {"gene": gene_name, "sequence": seq_data['seq']}
+
                 page = Path('html/geneSeq.html').read_text()
                 contents = page.replace("{{gene}}", gene_name).replace("{{sequence}}", seq_data['seq'])
             else:
                 contents = "Error obteniendo secuencia"
                 error_code = 404
 
-        #7: /geneInfo
+        # CASO 7: /geneInfo (Detalles del gen)
         elif resource == "/geneInfo":
-            gene_name = params.split("=")[1]
+            gene_name = params_limpios.split("=")[1]
             conn = http.client.HTTPSConnection("rest.ensembl.org")
             conn.request("GET", "/lookup/symbol/homo_sapiens/" + gene_name, headers={"Content-Type": "application/json"})
             response = conn.getresponse()
@@ -148,8 +170,10 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
             if response.status == 200:
                 data = json.loads(response.read().decode())
                 page = Path('html/geneInfo.html').read_text()
-                # Calculamos la longitud restando final e inicio
-                length = data['end'] - data['start']
+                length = data['end'] - data['start'] # Calculamos la longitud restando final e inicio
+
+                # for json
+                datos_compartidos = {"id": data['id'], "chromosome": data['seq_region_name'], "start": data['start'], "end": data['end'], "length": length}
 
                 contents = page.replace("{{id}}", data['id']) \
                     .replace("{{chromo}}", data['seq_region_name']) \
@@ -160,9 +184,9 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                 contents = "Gene info not found"
                 error_code = 404
 
-        #8: longitud porcentaje
+        #CASO 8: longitud y pocentaje de secuencias
         elif resource == "/geneCalc":
-            gene_name = params.split("=")[1]
+            gene_name = params_limpios.split("=")[1]
             conn = http.client.HTTPSConnection("rest.ensembl.org")
             conn.request("GET", "/lookup/symbol/homo_sapiens/" + gene_name, headers={"Content-Type": "application/json"})
             response = conn.getresponse()
@@ -175,24 +199,25 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                 length = str(len(full_seq))
                 percents = str(seq_percent(full_seq))
 
+                # for json
+                datos_compartidos = {"length": length, "percentages": seq_percent(full_seq)}
+
                 page = Path('html/geneCalc.html').read_text()
                 contents = page.replace("{{length}}", length).replace("{{percents}}", percents)
             else:
                 contents = "Error obteniendo secuencia"
                 error_code = 404
-        #9: /geneList (gnes en reg)
+
+        # CASO 9: /geneList (Genes en región)
         elif resource == "/geneList":
-            parts = params.split("&")
+            parts = params_limpios.split("&")
             chromo = ""
             start = ""
             end = ""
             for part in parts:
-                if part.startswith("chromo="):
-                    chromo = part.split("=")[1]
-                elif part.startswith("start="):
-                    start = part.split("=")[1]
-                elif part.startswith("end="):
-                    end = part.split("=")[1]
+                if part.startswith("chromo="): chromo = part.split("=")[1]
+                elif part.startswith("start="): start = part.split("=")[1]
+                elif part.startswith("end="): end = part.split("=")[1]
             conn = http.client.HTTPSConnection("rest.ensembl.org")
             ensembl_url = f"/overlap/region/homo_sapiens/{chromo}:{start}-{end}?feature=gene"
             conn.request("GET", ensembl_url, headers={"Content-Type": "application/json"})
@@ -201,21 +226,38 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
             if response.status == 200:
                 data = json.loads(response.read().decode())
                 list_html = ""
+                lista_nombres_pure = []
                 for gene in data:
                     gene_name = gene.get('external_name', gene.get('id', 'Unknown'))
                     list_html += f"<li>{gene_name}</li>"
-                if list_html == "": #po si no se encuentra nada
+                    lista_nombres_pure.append(gene_name)
+                if list_html == "":
                     list_html = "<li>genes not found in this region</li>"
+
+                # for json
+                datos_compartidos = {"chromosome": chromo, "start": start, "end": end, "genes": lista_nombres_pure}
+
                 page = Path('html/geneList.html').read_text()
                 contents = page.replace("{{chromo}}", chromo).replace("{{start}}", start).replace("{{end}}", end).replace("{{list}}", list_html)
             else:
                 contents = Path('html/error.html').read_text().replace("{{message}}","region not found")
                 error_code = 404
 
-        #error final
+        #error max
         else:
             contents = Path('html/error.html').read_text().replace("{{message}}", "Página no encontrada")
             error_code = 404
+
+        # --- AQUÍ TERMINA EL TRUCO (REESCRIBIMOS LA SALIDA SI PIDIERON JSON) ---
+        if "json=1" in params:
+            content_type = 'application/json'
+            if error_code != 200:
+                # Si error en, JSON devolverá mensaje error
+                contents = json.dumps({"error": f"Error {error_code} processing the request"})
+            else:
+                # CONVERTIMOS EL DICCIONARIO VACIO DEL PRINCIPIO QUE RELLENAMOS EN LOS ELIFS A JSON TEXTO
+                contents = json.dumps(datos_compartidos)
+
         self.send_response(error_code)
         self.send_header('Content-Type', content_type)
         self.send_header('Content-Length', len(str.encode(contents)))
