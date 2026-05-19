@@ -69,5 +69,31 @@
         End position: <input type="text" name="end" placeholder="e.g. 22136000">
         <input type="submit" value="Send">
     </form>
+
+
+    <h2>Exam practice</h2>
+    <p>9) Gene Type</p>
+    <form action="/geneType">
+        Gene name: <input type="text" name="gene">
+        <input type="submit" value="Send">
+    </form>
+
+    <p>10) List of species in the genome database(with a division)</p>
+    <form action="/listSpecies2" method="get">
+        Limit: <input type="text" name="limit">
+        Division: <input type="text" name="division">
+        <input type="submit" value="Send">
+    </form>
+
+    <p>11) Difference in length of 2 genes</p>
+    <form action="/geneCompLen" method="get">
+        First gene: <input type="text" name="gene1">
+        Second gene: <input type="text" name="gene2">
+        <input type="submit" value="Send">
+    </form>
+
+
+
+    </form>
 </body>
 </html>

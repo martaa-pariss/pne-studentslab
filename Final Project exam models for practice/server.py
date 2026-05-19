@@ -212,9 +212,86 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                 contents = Path('html/error.html').read_text().replace("{{message}}","region not found")
                 error_code = 404
 
+
+#####PRACTICA PARA EL EXAMEN######
+        elif resource == "/geneType":
+            gene_name = params.split("=")[1] # API: /lookup/symbol/homo_sapiens/NOMBRE_GEN
+            conn = http.client.HTTPSConnection("rest.ensembl.org")
+            conn.request("GET", "/lookup/symbol/homo_sapiens/" + gene_name, headers={"Content-Type": "application/json"})
+            response = conn.getresponse()
+            if response.status == 200:
+                data = json.loads(response.read().decode())
+                biotype = data['biotype']
+                strand = str(data['strand'])
+                page = Path('html/geneType.html').read_text()
+                contents = page.replace("{{gene}}", gene_name).replace("{{biotype}}", biotype).replace("{{strand}}", strand)
+            else:
+                contents = Path('html/error.html').read_text().replace("{{message}}", "Gene not found")
+                error_code = 404
+
+        elif resource == "/listSpecies2":
+            parts = params.split("&")
+            limit = int(parts[0].split("=")[1])
+            division = parts[1].split("=")[1]
+
+            conn = http.client.HTTPSConnection("rest.ensembl.org")
+            conn.request("GET", "/info/species", headers={"Content-Type": "application/json"})
+            response = conn.getresponse()
+            if response.status == 200:
+                data = json.loads(response.read().decode())
+                species = data['species']   # Leemos los datos y los convertimos de "texto" a "lista de Python"
+                list_html = ""
+                for especie in species:
+                    if especie['division'] == division:
+                        list_html += "<li>" + especie['display_name'] + "</li>"
+                        number = list_html.count("<li>")
+                        if number == limit:
+                            break
+
+                # Cargamos la plantilla y cambiamos el "hueco" por nuestra lista
+                page = Path('html/listSpecies2.html').read_text()
+                contents = page.replace("{{list}}", list_html)
+            else:
+                contents = "Error al conectar con Ensembl"
+                error_code = 500
+
+
+        elif resource == "/geneCompLen":
+            parts = params.split("&")
+            gene1 = parts[0].split("=")[1]
+            gene2 = parts[1].split("=")[1]
+            conn = http.client.HTTPSConnection("rest.ensembl.org")
+            conn2 = http.client.HTTPSConnection("rest.ensembl.org")
+            conn.request("GET", "/lookup/symbol/homo_sapiens/" + gene1, headers={"Content-Type": "application/json"})
+            conn2.request("GET", "/lookup/symbol/homo_sapiens/" + gene2, headers={"Content-Type": "application/json"})
+            response = conn.getresponse()
+            response2 = conn2.getresponse()
+            if response.status == 200:
+                data = json.loads(response.read().decode())
+                length1 = int(data['end'] - data['start'])
+                if response2.status == 200:
+                    data2 = json.loads(response2.read().decode())
+                    length2 = int(data2['end'] - data2['start'])
+                    if length1 > length2:
+                        dif = length1 - length2
+                        message = f"The first gene {gene1} is longer than the second {gene2}"
+                    elif length1 < length2:
+                        dif = length2 - length1
+                        message = f"The second gene {gene2} is longer than the first {gene1}"
+                    elif length1 == length2:
+                        dif = 0
+                        message = "both genes are the same length"
+
+                    page = Path('html/geneCompLen.html').read_text()
+                    contents = page.replace("{{message}}", message).replace("{{difference}}", str(dif))
+
+            else:
+                contents = Path('html/error.html').read_text().replace("{{message}}", "Gene not found")
+                error_code = 404
+
         #error final
         else:
-            contents = Path('html/error.html').read_text().replace("{{message}}", "Página no encontrada")
+            contents = Path('html/error.html').read_text().replace("{{message}}", "Page not found")
             error_code = 404
         self.send_response(error_code)
         self.send_header('Content-Type', content_type)
