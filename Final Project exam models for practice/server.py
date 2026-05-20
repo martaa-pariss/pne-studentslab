@@ -213,7 +213,16 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                 error_code = 404
 
 
+
+
+
+
+
+
+
+
 #####PRACTICA PARA EL EXAMEN######
+        #A
         elif resource == "/geneType":
             gene_name = params.split("=")[1] # API: /lookup/symbol/homo_sapiens/NOMBRE_GEN
             conn = http.client.HTTPSConnection("rest.ensembl.org")
@@ -229,6 +238,7 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                 contents = Path('html/error.html').read_text().replace("{{message}}", "Gene not found")
                 error_code = 404
 
+        #B
         elif resource == "/listSpecies2":
             parts = params.split("&")
             limit = int(parts[0].split("=")[1])
@@ -255,7 +265,7 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                 contents = "Error al conectar con Ensembl"
                 error_code = 500
 
-
+        #C
         elif resource == "/geneCompLen":
             parts = params.split("&")
             gene1 = parts[0].split("=")[1]
@@ -285,6 +295,175 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                     page = Path('html/geneCompLen.html').read_text()
                     contents = page.replace("{{message}}", message).replace("{{difference}}", str(dif))
 
+            else:
+                contents = Path('html/error.html').read_text().replace("{{message}}", "Gene not found")
+                error_code = 404
+
+        #D
+        elif resource == "/geneOverlapStats":
+            gene_name = params.split("=")[1] #1.Troceamos los parámetros
+            conn = http.client.HTTPSConnection("rest.ensembl.org") # Creamos las dos conexiones que vamos a necesitar
+            conn2 = http.client.HTTPSConnection("rest.ensembl.org")
+
+
+            conn.request("GET", "/lookup/symbol/homo_sapiens/" + gene_name,
+                         headers={"Content-Type": "application/json"}) # Primera petición: Buscamos los datos básicos del gen
+            response = conn.getresponse()
+
+            if response.status == 200: # Primer IF
+                data = json.loads(response.read().decode())
+                # Guardamos las coordenadas y el ID del gen original
+                chromo = data['seq_region_name']
+                start = str(data['start'])
+                end = str(data['end'])
+                my_id = data['id']
+
+                # Calculamos la longitud de nuestro gen
+                my_length = int(data['end'] - data['start'])
+
+                # Segunda petición: Buscamos qué solapa en ese cromosoma y coordenadas
+                # Usamos la estructura de URL típica de Ensembl: /overlap/region/homo_sapiens/CROMOSOMA:INICIO-FIN?feature=gene
+                conn2.request("GET",
+                              "/overlap/region/homo_sapiens/" + chromo + ":" + start + "-" + end + "?feature=gene",
+                              headers={"Content-Type": "application/json"})
+                response2 = conn2.getresponse()
+
+                # Segundo IF anidado a tu manera
+                if response2.status == 200:
+                    data2 = json.loads(response2.read().decode())  # Esto nos devuelve una lista de genes que solapan
+
+                    # Inicializamos las variables para el examen: el contador y los datos del vecino más grande
+                    overlap_count = 0
+                    max_length = 0
+                    max_name = "None"
+
+                    # Recorremos la lista de genes que solapan con un bucle for (como en tu listSpecies)
+                    for especie in data2:
+                        # Muy importante: Comprobamos que el gen que está solapando NO sea nuestro propio gen
+                        if especie['id'] != my_id:
+                            overlap_count = overlap_count + 1
+
+                            # Calculamos el tamaño de este gen vecino
+                            current_length = int(especie['end'] - especie['start'])
+
+                            # Algoritmo de máximos: Si este gen es más grande que el que teníamos guardado, lo actualizamos
+                            if current_length > max_length:
+                                max_length = current_length
+                                # En el overlap de Ensembl el nombre viene en 'external_name'
+                                max_name = especie['external_name']
+
+                    # Cargamos la plantilla y cambiamos los "huecos" pasando a string
+                    page = Path('html/geneOverlapStats.html').read_text()
+                    contents = page.replace("{{gene}}", gene_name).replace("{{length}}", str(my_length)).replace(
+                        "{{count}}", str(overlap_count)).replace("{{max_name}}", max_name).replace("{{max_length}}",
+                                                                                                   str(max_length))
+
+                else:
+                    contents = "Error al conectar con el servicio de Overlap"
+                    error_code = 500
+
+            else:
+                # Tu gestión de errores de siempre
+                contents = Path('html/error.html').read_text().replace("{{message}}", "Original gene not found")
+                error_code = 404
+
+        #E
+        elif resource == "/geneMutations":
+            # Troceamos los dos parámetros a tu manera
+            parts = params.split("&")
+            gene_name = parts[0].split("=")[1]
+            min_len = int(parts[1].split("=")[1])  # Convertimos a número para poder comparar
+
+            conn = http.client.HTTPSConnection("rest.ensembl.org")
+            conn2 = http.client.HTTPSConnection("rest.ensembl.org")
+
+            # Petición 1: Conseguir el ID del gen
+            conn.request("GET", "/lookup/symbol/homo_sapiens/" + gene_name,
+                         headers={"Content-Type": "application/json"})
+            response = conn.getresponse()
+
+            if response.status == 200:
+                data = json.loads(response.read().decode())
+                my_id = data['id']
+
+                # Petición 2: Conseguir los transcritos expandidos usando el ID
+                conn2.request("GET", "/lookup/id/" + my_id + "?expand=1", headers={"Content-Type": "application/json"})
+                response2 = conn2.getresponse()
+
+                if response2.status == 200:
+                    data2 = json.loads(response2.read().decode())
+                    transcripts_list = data2['Transcript']  # Lista de Python con los transcritos
+
+                    # Inicializamos variables a tu manera
+                    list_html = ""
+                    count = 0
+
+                    for t in transcripts_list:
+                        # Calculamos el tamaño del transcrito actual
+                        t_length = int(t['end'] - t['start'])
+
+                        # Filtrado por longitud mínima
+                        if t_length >= min_len:
+                            count = count + 1
+                            list_html += "<li>Transcript ID: " + t['id'] + " (Length: " + str(t_length) + " bases)</li>"
+
+                    if list_html == "":
+                        list_html = "<li>No transcripts found longer than the minimum length</li>"
+
+                    # Cargamos plantilla y cambiamos huecos
+                    page = Path('html/geneMutations.html').read_text()
+                    contents = page.replace("{{gene}}", gene_name).replace("{{count}}", str(count)).replace("{{list}}",
+                                                                                                            list_html)
+                else:
+                    contents = "Error fetching transcripts"
+                    error_code = 500
+            else:
+                contents = Path('html/error.html').read_text().replace("{{message}}", "Gene not found")
+                error_code = 404
+
+
+
+        #F
+        elif resource == "/karyotypeBand":
+            gene_name = params.split("=")[1]
+
+            conn = http.client.HTTPSConnection("rest.ensembl.org")
+            conn2 = http.client.HTTPSConnection("rest.ensembl.org")
+
+            # Petición 1: Buscamos el gen original
+            conn.request("GET", "/lookup/symbol/homo_sapiens/" + gene_name,
+                         headers={"Content-Type": "application/json"})
+            response = conn.getresponse()
+
+            if response.status == 200:
+                data = json.loads(response.read().decode())
+                chromo = data['seq_region_name']
+                banda_objetivo = data['karyotype_band']  # Guardamos el nombre de la banda (ej: "q21.1")
+
+                # Petición 2: Pedimos todas las bandas de ese cromosoma
+                conn2.request("GET", "/overlap/region/homo_sapiens/" + chromo + "?feature=band",
+                              headers={"Content-Type": "application/json"})
+                response2 = conn2.getresponse()
+
+                if response2.status == 200:
+                    data2 = json.loads(response2.read().decode())  # Es una lista con todas las bandas del cromosoma
+
+                    # Inicializamos variables para buscar la banda exacta
+                    band_size = 0
+
+                    for b in data2:
+                        # Buscamos la banda que se llame igual que la de nuestro gen
+                        if b['id'] == banda_objetivo:
+                            band_size = int(b['end'] - b['start'])
+                            break  # Como ya la hemos encontrado, usamos tu truco del break para ahorrar tiempo
+
+                    # Cargamos la plantilla
+                    page = Path('html/karyotypeBand.html').read_text()
+                    contents = page.replace("{{gene}}", gene_name).replace("{{band}}", banda_objetivo).replace(
+                        "{{size}}", str(band_size))
+                else:
+                    contents = "Error fetching chromosome bands"
+                    error_code = 500
             else:
                 contents = Path('html/error.html').read_text().replace("{{message}}", "Gene not found")
                 error_code = 404

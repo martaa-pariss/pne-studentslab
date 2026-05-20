@@ -1,0 +1,91 @@
+📝 MODELO DE EXAMEN A: Nuevo Servicio /geneType (Dificultad: Media)
+Contexto: Los profesores quieren evaluar si eres capaz de crear una ruta completamente nueva desde cero, procesar un parámetro, hacer una consulta simple a la API de Ensembl y renderizar un HTML siguiendo tu arquitectura actual.
+Enunciado del problema:
+Añade un nuevo servicio a tu servidor web accesible a través del endpoint /geneType.
+Formulario Principal: Modifica index.html para incluir un nuevo formulario con un campo de texto llamado gene que envíe una petición GET a /geneType.
+Lógica del Servidor (server.py): Al recibir la petición, el servidor debe extraer el nombre del gen. Deberá realizar una consulta a la API de Ensembl usando el endpoint de búsqueda por símbolo (el mismo que utilizas en /geneLookup): GET /lookup/symbol/homo_sapiens/NOMBRE_GEN
+Procesamiento de Datos: Del JSON devuelto por Ensembl, extrae los campos "biotype" (tipo de gen, por ejemplo: protein_coding) y "strand" (la cadena de ADN, que puede ser 1 o -1).
+Respuesta HTML: Crea una plantilla en html/geneType.html que muestre estos dos valores. Si el gen no se encuentra, debes devolver tu página de error con código 404 y el mensaje "Gene not found".
+Solución sugerida para estudiar:
+En tu estructura elif resource == "/geneType":, el código clave a añadir sería:
+Python
+
+-------------------------
+📝 MODELO DE EXAMEN B: Modificación Avanzada /listSpecies con Filtro (Dificultad: Media-Alta)
+Contexto: Este modelo evalúa tu capacidad para transformar datos complejos devueltos por una API externa e implementar lógica algorítmica propia (filtrado) en base a un nuevo parámetro de consulta.
+Enunciado del problema:
+Modifica el endpoint actual /listSpecies para que, además del parámetro opcional limit, acepte un parámetro opcional llamado division.
+Formulario Principal: En index.html, añade un nuevo campo de texto en el formulario de listar especies rotulado como "División (ej: EnsemblVertebrates):".
+Lógica del Servidor: Cuando la API de Ensembl te devuelva la lista completa de especies (/info/species), cada objeto especie contiene una propiedad dentro del JSON llamada "division" (por ejemplo: "EnsemblVertebrates").
+Algoritmo de Filtrado: Si el parámetro division viene en la URL (ej: division=EnsemblVertebrates), tu servidor debe filtrar la lista y quedarse únicamente con aquellas especies cuya división coincida exactamente con la solicitada por el usuario.
+Límite: Posteriormente, si también se especificó un limit, se aplicará el recorte a la lista ya filtrada. Muestra el resultado final usando tu plantilla listSpecies.html.
+Solución sugerida para estudiar:
+Dentro de tu bloque elif resource == "/listSpecies": , tras obtener el array specie = data['species']:
+Python
+
+
+------------------------
+📝 MODELO DE EXAMEN C: Extensión Completa /geneCompare (Dificultad: Alta / Nivel Avanzado)
+Contexto: Los exámenes más exigentes te piden relacionar múltiples consultas secuenciales o contrastar datos. Aquí se evalúa el manejo de errores complejos y la manipulación precisa de strings.
+Enunciado del problema:
+Crea un nuevo servicio llamado /geneCompare que permita comparar las longitudes de dos genes humanos introducidos por el usuario.
+Formulario: El formulario web debe solicitar dos nombres de genes: gene1 y gene2.
+Consultas a la API: El servidor debe hacer una petición de lookup (/lookup/symbol/homo_sapiens/...) para el primer gen y otra idéntica para el segundo gen. De cada uno calculará su longitud (end - start).
+Lógica de Comparación: El servidor determinará cuál de los dos genes es más largo y calculará la diferencia exacta de nucleótidos entre ambos.
+Renderizado: Usando una nueva plantilla html/geneCompare.html, mostrará en una tabla o lista el ID, el nombre y la longitud de ambos genes, junto con un mensaje destacado indicando cuál es el mayor (ej: "El gen BRCA1 es más largo que FRAT1 por 78420 bases"). Si cualquiera de los dos genes no existe en la base de datos, mostrará la página de error 404.
+Solución sugerida para estudiar:
+Este ejercicio requiere estructurar muy bien las llamadas anidadas para controlar si falla el primer gen o el segundo:
+Python
+
+------------------------------------
+📝 MODELO DE EXAMEN D: El Servicio /geneOverlapStats
+Contexto: Este ejercicio evalúa tu capacidad para conectar tres endpoints diferentes de Ensembl de forma secuencial, filtrar datos por coordenadas numéricas, usar funciones lógicas en Python y devolver estadísticas calculadas en tiempo real.
+Enunciado del problema:
+Crea un nuevo servicio accesible a través del endpoint /geneOverlapStats que calcule qué porcentaje de un gen está siendo solapado por otros genes en su mismo cromosoma.
+Formulario (index.html): Añade un formulario que solicite únicamente el nombre de un gen humano (ej: FRAT1 o BRCA1).
+Primera petición (Lookup): El servidor debe buscar el gen para obtener su ID estable, su chromosome, su start y su end.
+Segunda petición (Overlap): Usando el cromosoma, el inicio (start) y el fin (end) obtenidos en el paso anterior, realiza una petición al endpoint de solapamiento para descubrir qué otros genes humanos cruzan esa misma región.
+Cálculo de Estadísticas (Lógica en Python): * Cuenta cuántos genes solapan con nuestro gen principal (excluyendo el propio gen principal de la cuenta).
+Calcula la longitud de nuestro gen ($end - start$).
+Encuentra cuál de los genes que solapan es el más largo y calcula su tamaño.
+Respuesta HTML (html/geneOverlapStats.html): Muestra al usuario una página bien formateada con:
+El nombre del gen consultado.
+El número total de genes que lo solapan.
+La longitud de nuestro gen.
+El nombre y tamaño del gen vecino más grande que comparte región.
+Si el gen original no existe, muestra el error 404. Si existe pero no tiene genes que lo solapen, muestra "0 genes" y "N/A" en el gen más grande.
+
+------------------------------------------------
+
+## 📝 MODELO DE EXAMEN E: El Servicio `/geneMutations` (Anidamiento y Bioinformática)
+
+**Contexto:** En este examen se evalúa tu capacidad para encadenar dos peticiones (primero buscar el ID de un gen y luego buscar información genética detallada sobre él) y realizar un procesamiento de strings y un filtrado lúgubre dentro de un bucle.
+
+### Enunciado del problema:
+
+Crea un nuevo servicio llamado `/geneMutations`. El usuario introducirá el nombre de un gen (ej: *FRAT1*) y un número de longitud mínima en un formulario. El servidor deberá buscar el ID de ese gen y luego pedir a Ensembl todos los transcritos asociados a él. Finalmente, calculará cuántos transcritos superan esa longitud mínima y los listará.
+
+1. **Formulario (`index.html`):** Debe pedir el nombre del gen (`gene`) y un número para la longitud mínima (`min_len`).
+2. **Petición 1 (Lookup):** Obtén el `id` estable del gen a partir de su nombre.
+3. **Petición 2 (Transcritos):** Utiliza el endpoint de Ensembl para obtener los transcritos usando ese ID:
+`GET /lookup/id/ID_DEL_GEN?expand=1`
+4. **Lógica en Python:** Del JSON devuelto, la clave `'Transcript'` contiene una lista de diccionarios. Recórrela y calcula el tamaño de cada transcrito ($end - start$). Si es mayor o igual a `min_len`, añádelo a la lista.
+5. **Renderizado (`html/geneMutations.html`):** Muestra el nombre del gen, cuántos transcritos cumplen la condición y una lista HTML con sus IDs y tamaños.
+
+
+----------------------------------------
+
+## 📝 MODELO DE EXAMEN F: El Servicio `/karyotypeBand` (Búsqueda Cruzada y Comparación Numérica)
+
+**Contexto:** Este ejercicio es de nivel avanzado porque requiere extraer un dato de texto complejo de la primera respuesta de Ensembl (la banda citogenética) para usarlo en una consulta de región en la segunda petición. Mide tu destreza manejando las coordenadas que devuelve la API.
+
+### Enunciado del problema:
+
+Crea un servicio llamado `/karyotypeBand`. El usuario introduce el nombre de un gen humano. Tu servidor debe averiguar en qué banda del cariotipo (por ejemplo: *q21.31*) se encuentra ese gen, y luego averiguar cuántos **otros** genes empiezan exactamente en esa misma región de cromosomas.
+
+1. **Formulario (`index.html`):** Un campo de texto simple para el nombre del gen (`gene`).
+2. **Petición 1 (Lookup):** Busca el gen. Del JSON que te devuelve Ensembl, extrae los campos `seq_region_name` (cromosoma) y un campo llamado `karyotype_band` (la banda donde está, ej: *"p13.3"*).
+3. **Petición 2 (Región de la banda):** Usa el endpoint de Ensembl que lista las características de una banda citogenética para ver qué genes hay allí. La URL se monta así:
+`/overlap/region/homo_sapiens/CROMOSOMA?feature=band`
+4. **Lógica en Python:** Recorrerás la lista de bandas que te devuelve Ensembl. Tienes que buscar aquella banda cuyo nombre coincida con la `karyotype_band` de tu gen original. Cuando la encuentres, calcula el tamaño total de esa banda en el cromosoma ($end - start$).
+5. **Renderizado (`html/karyotypeBand.html`):** Muestra el nombre del gen, el nombre de su banda, y el tamaño en bases de dicha banda citogenética.
